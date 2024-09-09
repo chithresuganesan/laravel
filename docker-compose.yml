@@ -12,24 +12,35 @@ services:
       - ./docker/mysql/createDevDB.sql:/docker-entrypoint-initdb.d/init1.sql
 
   php:
-    image: laravel_docker    # Explicitly set the image name here
+    image: laravel_docker
     build:
       context: .
       dockerfile: ./Dockerfile
       args:
         buildno: 1.0
     ports:
-      - 8082:80
+      - "8082:80"
     volumes:
       - .:/var/www/html
     working_dir: /var/www/html
     depends_on:
-      - "db"
+      - db
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    networks:
+      - app-network
 
   adminer:
     image: adminer:4.8.1
     restart: always
     ports:
-      - 8083:8080
+      - "8083:8080"
     depends_on:
-      - "db"
+      - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
